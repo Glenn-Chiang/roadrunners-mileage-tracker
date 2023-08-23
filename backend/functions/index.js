@@ -11,7 +11,7 @@ const db = getFirestore();
 
 exports.registerUser = onRequest(async (req, res) => {
   const { userId, callsign } = req.query;
-  const userDoc = db.collection("users").doc(userId);
+  const userDoc = db.collection("users").doc(callsign);
   const result = await userDoc.set({
     userId,
     callsign,
