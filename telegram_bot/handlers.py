@@ -73,16 +73,16 @@ async def rankHandler(update: Update, context: CallbackContext):
 
 
 async def teamRankHandler(update: Update, context: CallbackContext):
-    BASE_URL = ''
     try:
         teams_list = []
-        teams = requests.get(f'{BASE_URL}').json()
+        teams = requests.get(f'https://getteamranking-znvjhrzzxa-uc.a.run.app/').json()
         for team in teams:
             team_id: str = team['id']
+            team_mileage: str = team['mileage']
             team_members: list = team['members']
             formatted_team_members = ('\n').join(
                 [f"{idx + 1}. {user['callsign']} {user['totalMileage']}km" for idx, user in enumerate(team_members)])
-            formatted_team = f"TEAM {team_id}\n{formatted_team_members}"
+            formatted_team = f"TEAM {team_id} ({team_mileage} KM)\n{formatted_team_members}"
             teams_list.append(formatted_team)
         formatted_teams_list = ('\n\n').join(teams_list)
         await update.message.reply_text(formatted_teams_list)
