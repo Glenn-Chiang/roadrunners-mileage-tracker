@@ -28,11 +28,13 @@ def lambda_handler(event, context):
 # def main():
 #     app = Application.builder().token(token=os.getenv('BOT_TOKEN')).build()
 
-#     app.add_handler(handler=registerHandler)
-#     app.add_handler(handler=CommandHandler('clock', clockMileageHandler))
+#     app.add_handler(registerHandler)
+#     app.add_handler(CommandHandler('clock', clockMileageHandler))
+#     app.add_handler(CommandHandler('rank', rankHandler))
+#     app.add_handler(CommandHandler('teamrank', teamRankHandler))
 
 #     print('Bot running...')
 #     app.run_polling()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

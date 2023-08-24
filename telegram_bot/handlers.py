@@ -9,7 +9,9 @@ async def getCallsign(update: Update, context: CallbackContext):
 
 
 async def getTeam(update: Update, context: CallbackContext):
-    context.user_data['callsign'] = update.message.text.upper()
+    callsign = update.message.text.upper()
+    callsign = ('_').join(callsign.split(' '))
+    context.user_data['callsign'] = callsign
     await update.message.reply_text(text='Enter your team e.g. A')
     return 'register'
 
