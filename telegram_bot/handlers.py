@@ -35,7 +35,7 @@ async def registerTeam(update: Update, context: CallbackContext):
 
 
 async def helpHandler(update: Update, context: CallbackContext):
-    update.message.reply_text(
+    await update.message.reply_text(
         "/clock <mileage>\nClock mileage in KM\n\n/rank\nView mileage ranking across all personnel\n\n/teamrank\nView mileage ranking for each team\n\n/callsign <your_callsign>\nReenter your callsign if you previously entered it incorrectly\n\n/team <your_team>\nReenter your team if you previously entered it incorrectly"
     )
 
@@ -77,11 +77,12 @@ async def teamRankHandler(update: Update, context: CallbackContext):
             f'https://getteamranking-znvjhrzzxa-uc.a.run.app/').json()
         for team in teams:
             team_id: str = team['id']
-            team_mileage: str = team['mileage']
+            team_total_mileage: str = team['mileage']
             team_members: list = team['members']
+            team_average_mileage = round(int(team_total_mileage) / len(team_members))
             formatted_team_members = ('\n').join(
                 [f"{idx + 1}. {user['callsign']} {user['totalMileage']}km" for idx, user in enumerate(team_members)])
-            formatted_team = f"TEAM {team_id} ({team_mileage} KM)\n{formatted_team_members}"
+            formatted_team = f"TEAM {team_id} (AVG {team_average_mileage} KM)\n{formatted_team_members}"
             teams_list.append(formatted_team)
         formatted_teams_list = ('\n\n').join(teams_list)
         await update.message.reply_text(formatted_teams_list)
