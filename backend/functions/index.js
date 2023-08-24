@@ -9,16 +9,35 @@ initializeApp();
 
 const db = getFirestore();
 
-exports.registerUser = onRequest(async (req, res) => {
+exports.registerCallsign = onRequest(async (req, res) => {
   try {
-    const { userId, callsign, teamId } = req.query;
+    const { userId, callsign } = req.query;
     const userDoc = db.collection("users").doc(userId);
-    const result = await userDoc.set({
-      userId,
-      callsign: callsign.toUpperCase(),
-      teamId: teamId.toUpperCase(),
-      totalMileage: 0,
-    });
+    const result = await userDoc.set(
+      {
+        userId,
+        callsign: callsign.toUpperCase(),
+        totalMileage: 0,
+      },
+      { merge: true },
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
+
+exports.registerTeam = onRequest(async (req, res) => {
+  try {
+    const { userId, teamId } = req.query;
+    const userDoc = db.collection("users").doc(userId);
+    const result = await userDoc.set(
+      {
+        userId,
+        teamId: teamId.toUpperCase(),
+      },
+      { merge: true },
+    );
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error });
