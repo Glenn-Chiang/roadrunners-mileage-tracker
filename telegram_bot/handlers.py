@@ -1,48 +1,37 @@
 from telegram import Update
-from telegram.ext import CallbackContext, ConversationHandler, CommandHandler, MessageHandler, filters
+from telegram.ext import CallbackContext
 import requests
 
 
-async def getCallsign(update: Update, context: CallbackContext):
-    await update.message.reply_text(text='Enter your callsign/name')
-    return 'team'
+async def startHandler(update: Update, context: CallbackContext):
+    await update.message.reply_text('To register, please enter the following 2 commands IN ORDER:\n/callsign <your_callsign_or_name>\n/team <your_team>\n\ne.g.\n/callsign Glenn\n/team C')
 
 
-async def getTeam(update: Update, context: CallbackContext):
-    callsign = update.message.text.upper()
-    callsign = ('_').join(callsign.split(' '))
-    context.user_data['callsign'] = callsign
-    await update.message.reply_text(text='Enter your team e.g. A')
-    return 'register'
-
-
-async def register(update: Update, context: CallbackContext):
+async def registerCallsign(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
-    callsign = context.user_data['callsign']
-    teamId = update.message.text
+    callsign = ('_').join(context.args) # Join name into 1 word if it contains spaces
+
+    try:
+        requests.post(
+            f'https://registeruser-znvjhrzzxa-uc.a.run.app/?userId={user_id}&callsign={callsign}')
+        await update.message.reply_text('You have registered your callsign! Please register your team.')
+    except Exception as error:
+        await update.message.reply_text(f'ERROR: {error}')
+
+
+async def registerTeam(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    teamId = context.args[0]
 
     if teamId.upper() not in ['A', 'B', 'C']:
         await update.message.reply_text('Invalid team')
-        return 'team'
+        return
 
     try:
-        await update.message.reply_text('Processing...')
-        requests.post(
-            f'https://registeruser-znvjhrzzxa-uc.a.run.app/?userId={user_id}&callsign={callsign}&teamId={teamId}')
-        await update.message.reply_text('Registration successful! Type "/clock <distance>" to clock distance in km\n\ne.g. /clock 2.4')
+        requests.post(f'{""}/?userId={user_id}&teamId={teamId}')
+        await update.message.reply_text('You have registered your team! To start clocking your mileage in KM, enter: /clock <mileage>\n\ne.g. /clock 2.4')
     except Exception as error:
         await update.message.reply_text(f'ERROR: {error}')
-    return ConversationHandler.END
-
-
-registerHandler = ConversationHandler(
-    entry_points=[CommandHandler('start', getCallsign)],
-    states={
-        'team': [MessageHandler(filters=filters.TEXT, callback=getTeam)],
-        'register': [MessageHandler(filters=filters.TEXT, callback=register)]
-    },
-    fallbacks=[]
-)
 
 
 async def clockMileageHandler(update: Update, context: CallbackContext):
@@ -65,7 +54,8 @@ async def clockMileageHandler(update: Update, context: CallbackContext):
 
 async def rankHandler(update: Update, context: CallbackContext):
     try:
-        users = requests.get(f'https://getranking-znvjhrzzxa-uc.a.run.app').json()
+        users = requests.get(
+            f'https://getranking-znvjhrzzxa-uc.a.run.app').json()
         formatted_users = ('\n').join(
             [f"{idx + 1}. {user['callsign']} {user['totalMileage']}km" for idx, user in enumerate(users)])
         await update.message.reply_text(formatted_users)
@@ -77,7 +67,8 @@ async def rankHandler(update: Update, context: CallbackContext):
 async def teamRankHandler(update: Update, context: CallbackContext):
     try:
         teams_list = []
-        teams = requests.get(f'https://getteamranking-znvjhrzzxa-uc.a.run.app/').json()
+        teams = requests.get(
+            f'https://getteamranking-znvjhrzzxa-uc.a.run.app/').json()
         for team in teams:
             team_id: str = team['id']
             team_mileage: str = team['mileage']

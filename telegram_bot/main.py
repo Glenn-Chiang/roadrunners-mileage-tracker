@@ -1,4 +1,4 @@
-from handlers import registerHandler, clockMileageHandler, rankHandler, teamRankHandler
+from handlers import startHandler, registerCallsign, registerTeam, clockMileageHandler, rankHandler, teamRankHandler
 import json
 import os
 import asyncio
@@ -11,7 +11,9 @@ load_dotenv()
 async def main(event):
     app = Application.builder().token(token=os.getenv('BOT_TOKEN')).build()
 
-    app.add_handler(registerHandler)
+    app.add_handler(CommandHandler('start', startHandler))
+    app.add_handler(CommandHandler('callsign', registerCallsign))
+    app.add_handler(CommandHandler('team', registerTeam))
     app.add_handler(CommandHandler('clock', clockMileageHandler))
     app.add_handler(CommandHandler('rank', rankHandler))
     app.add_handler(CommandHandler('teamrank', teamRankHandler))
