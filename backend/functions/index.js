@@ -17,7 +17,6 @@ exports.registerCallsign = onRequest(async (req, res) => {
       {
         userId,
         callsign: callsign.toUpperCase(),
-        totalMileage: 0,
       },
       { merge: true },
     );
