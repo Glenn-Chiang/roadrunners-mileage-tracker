@@ -50,19 +50,24 @@ exports.getRanking = onRequest(async (req, res) => {
   }
 });
 
-exports.getTeamRanks = onRequest(async (req, res) => {
+exports.getTeamRanking = onRequest(async (req, res) => {
   const teams = [];
 
   const teamIds = ["A", "B", "C"];
   try {
     for (const teamId of teamIds) {
+      let teamMileage = 0;
       const teamMembersSnap = await db
         .collection("users")
         .where("teamId", "==", teamId)
         .orderBy("totalMileage", "desc")
         .get();
-      const teamMembers = teamMembersSnap.docs.map((doc) => doc.data());
-      const team = { id: teamId, members: teamMembers };
+      const teamMembers = teamMembersSnap.docs.map((doc) => {
+        const userData = doc.data();
+        teamMileage += userData.totalMileage;
+        return userData;
+      });
+      const team = { id: teamId, members: teamMembers, mileage: teamMileage };
       teams.push(team);
     }
     res.json(teams);
