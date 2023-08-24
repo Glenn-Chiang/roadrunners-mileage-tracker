@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable object-curly-spacing */
 const { onRequest } = require("firebase-functions/v2/https");
 
@@ -10,16 +11,17 @@ const db = getFirestore();
 
 exports.registerUser = onRequest(async (req, res) => {
   try {
-    const { userId, callsign } = req.query;
+    const { userId, callsign, teamId } = req.query;
     const userDoc = db.collection("users").doc(userId);
     const result = await userDoc.set({
       userId,
-      callsign,
+      callsign: callsign.toUpperCase(),
+      teamId: teamId.toUpperCase(),
       totalMileage: 0,
     });
     res.json(result);
   } catch (error) {
-    res.json({ error: error });
+    res.status(500).json({ error: error });
   }
 });
 
@@ -33,4 +35,38 @@ exports.clockMileage = onRequest(async (req, res) => {
   const userData = userDocSnap.data();
   const totalMileage = userData.totalMileage;
   res.json({ totalMileage });
+});
+
+exports.getRanking = onRequest(async (req, res) => {
+  try {
+    const usersCollection = db.collection("users");
+    const rankedUserDocs = await usersCollection
+      .orderBy("totalMileage", "desc")
+      .get();
+    const rankedUsers = rankedUserDocs.docs.map((userDoc) => userDoc.data());
+    res.json(rankedUsers);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
+
+exports.getTeamRanks = onRequest(async (req, res) => {
+  const teams = [];
+
+  const teamIds = ["A", "B", "C"];
+  try {
+    for (const teamId of teamIds) {
+      const teamMembersSnap = await db
+        .collection("users")
+        .where("teamId", "==", teamId)
+        .orderBy("totalMileage", "desc")
+        .get();
+      const teamMembers = teamMembersSnap.docs.map((doc) => doc.data());
+      const team = { id: teamId, members: teamMembers };
+      teams.push(team);
+    }
+    res.json(teams);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
 });
