@@ -4,7 +4,7 @@ import requests
 
 
 async def startHandler(update: Update, context: CallbackContext):
-    await update.message.reply_text('To register, please enter the following 2 commands IN ORDER:\n/callsign <your_callsign_or_name>\n/team <your_team>\n\ne.g.\n/callsign Glenn\n/team C')
+    await update.message.reply_text('To register, please enter the following command:\n/callsign <your_callsign_or_name>\n\ne.g.\n/callsign Glenn')
 
 
 async def registerCallsign(update: Update, context: CallbackContext):
@@ -13,8 +13,8 @@ async def registerCallsign(update: Update, context: CallbackContext):
 
     try:
         requests.post(
-            f'https://registeruser-znvjhrzzxa-uc.a.run.app/?userId={user_id}&callsign={callsign}')
-        await update.message.reply_text('You have registered your callsign! Please register your team.')
+            f'https://registercallsign-znvjhrzzxa-uc.a.run.app/?userId={user_id}&callsign={callsign}')
+        await update.message.reply_text('You have registered your callsign! Please register which team you are in by entering the following command:\n/team <your_team>\n\ne.g.\n/team C')
     except Exception as error:
         await update.message.reply_text(f'ERROR: {error}')
 
@@ -28,10 +28,16 @@ async def registerTeam(update: Update, context: CallbackContext):
         return
 
     try:
-        requests.post(f'{""}/?userId={user_id}&teamId={teamId}')
-        await update.message.reply_text('You have registered your team! To start clocking your mileage in KM, enter: /clock <mileage>\n\ne.g. /clock 2.4')
+        requests.post(f'https://registerteam-znvjhrzzxa-uc.a.run.app/?userId={user_id}&teamId={teamId}')
+        await update.message.reply_text('You have registered your team! To start clocking your mileage in KM, enter: /clock <mileage>\n\ne.g. /clock 2.4\n\nAlternatively, type /help to view more commands')
     except Exception as error:
         await update.message.reply_text(f'ERROR: {error}')
+
+
+async def helpHandler(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        "/clock <mileage>\nClock mileage in KM\n\n/rank\nView mileage ranking across all personnel\n\n/teamrank\nView mileage ranking for each team\n\n/callsign <your_callsign>\nReenter your callsign if you previously entered it incorrectly\n\n/team <your_team>\nReenter your team if you previously entered it incorrectly"
+    )
 
 
 async def clockMileageHandler(update: Update, context: CallbackContext):

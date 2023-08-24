@@ -1,4 +1,4 @@
-from handlers import startHandler, registerCallsign, registerTeam, clockMileageHandler, rankHandler, teamRankHandler
+from handlers import startHandler, registerCallsign, registerTeam, helpHandler, clockMileageHandler, rankHandler, teamRankHandler
 import json
 import os
 import asyncio
@@ -14,6 +14,7 @@ async def main(event):
     app.add_handler(CommandHandler('start', startHandler))
     app.add_handler(CommandHandler('callsign', registerCallsign))
     app.add_handler(CommandHandler('team', registerTeam))
+    app.add_handler(CommandHandler('help', helpHandler))
     app.add_handler(CommandHandler('clock', clockMileageHandler))
     app.add_handler(CommandHandler('rank', rankHandler))
     app.add_handler(CommandHandler('teamrank', teamRankHandler))
